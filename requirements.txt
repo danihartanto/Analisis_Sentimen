@@ -1,4 +1,6 @@
-pandas==1.4.1
+pandas==1.2.1
+streamlit==1.2.0
+plotly==5.4.0
 numpy==1.22.2
 matplotlib==3.5.1
 sklearn==0.0
@@ -8,5 +10,3 @@ strings==0.1.2
 nltk==3.7
 Sastrawi==1.0.1
 streamlit-aggrid==0.2.3.post2
-streamlit==1.5.1
-plotly==5.6.0
