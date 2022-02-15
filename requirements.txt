@@ -1,12 +1,11 @@
 pandas==1.2.1
 streamlit==1.2.0
 plotly==5.4.0
+regex==2021.8.3
 numpy==1.20.0
-matplotlib==3.5.1
+matplotlib==3.4.2
 sklearn==0.0
-pillow==9.0.1
-regex==2022.1.18
-strings==0.1.2
-nltk==3.7
+pillow==8.2.0
+nltk==3.6.2
 Sastrawi==1.0.1
 streamlit-aggrid==0.2.3.post2
