@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from sklearn import svm
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
 from sklearn.model_selection import KFold
 from sklearn.feature_extraction.text import CountVectorizer
@@ -61,54 +60,40 @@ def praproses(text):
     text = " ".join([word for word in text])
     return text
 
-def pengolahan_data(text):
-    text = text.lower() #huruf besar jadi huruf kecil
-    text = text.strip() #White spaces removal
-    text = re.sub('\d+', ' ', text) #remove angka
-    text = re.sub(r'[!”#$%&’()*+,-./:;<=>?@[\]^_`{|}~]', '', text)  #remove punctuation
-    emoji_pattern = re.compile("["
-                u"\U0001F600-\U0001F64F"  # emoticons
-                u"\U0001F300-\U0001F5FF"  # symbols & pictographs
-                u"\U0001F680-\U0001F6FF"  # transport & map symbols
-                u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
-                u"\U0001F1F2-\U0001F1F4"  # Macau flag
-                u"\U0001F1E6-\U0001F1FF"  # flags
-                u"\U0001F600-\U0001F64F"
-                u"\U00002702-\U000027B0"
-                u"\U000024C2-\U0001F251"
-                u"\U0001f926-\U0001f937"
-                u"\U0001F1F2"
-                u"\U0001F1F4"
-                u"\U0001F620"
-                u"\u200d"
-                u"\u2640-\u2642"
-                "]+", flags=re.UNICODE)
-    text = emoji_pattern.sub(r'', text) # no emoji
-    return text  
+class SVM:
+    def __init__(self, learning_rate=0.001, lambda_param=0.01, n_iters=1000):
+        self.lr = learning_rate
+        self.lambda_param = lambda_param
+        self.n_iters = n_iters
+        self.w = None
+        self.b = None
 
+    def fit(self, X, y):
+        n_samples, n_features = X.shape
+
+        y_ = np.where(y <= 0, -1, 1)
+
+        self.w = np.zeros(n_features)
+        self.b = 0
+
+        for _ in range(self.n_iters):
+            for idx, x_i in enumerate(X):
+                condition = y_[idx] * (np.dot(x_i, self.w) - self.b) >= 1
+                if condition:
+                    self.w -= self.lr * (2 * self.lambda_param * self.w)
+                else:
+                    self.w -= self.lr * (
+                        2 * self.lambda_param * self.w - np.dot(x_i, y_[idx])
+                    )
+                    self.b -= self.lr * y_[idx]
+
+    def predict(self, X):
+        approx = np.dot(X, self.w) - self.b
+        return np.sign(approx)
 def tf_idf(data):
-    count = CountVectorizer()
-    tampung = data.tolist()
-    databersih =np.array(tampung)
-    data = count.fit_transform(databersih)
-    return data
-
-def klasifikasi(X,y):
-    kf = KFold(n_splits=10, random_state=None) 
-    for train_index, test_index in kf.split(X):
-        #print("Train:", train_index, "\nTest:",test_index,'\n')
-        X_train, X_test = X[train_index], X[test_index] 
-        y_train, y_test = y[train_index], y[test_index]
-    SVM = svm.SVC(kernel='linear')
-    modelSvm = SVM.fit(X_train,y_train)
-    y_pred = modelSvm.predict(X_test)
-    akurasi = accuracy_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-    presisi = precision_score(y_test, y_pred)
-    result = st.write("Akurasi : ",round(akurasi*100,2),"%")
-    result = st.write("Recall : ",round(recall*100,2),"%")
-    result = st.write("Presisi : ",round(presisi*100,2),"%")
-    return result
+    vectorizer = TfidfVectorizer(max_df=1.0,min_df=1,norm=None)
+    respon = vectorizer.fit_transform(data).toarray()
+    return respon
 
 def main():
     image = Image.open('himatif.png')
@@ -172,10 +157,10 @@ def main():
                         iterasi+=1
                         X_train, X_test = X[train_index], X[test_index] 
                         y_train, y_test = y[train_index], y[test_index]
-                        SVM = svm.SVC(kernel='linear')
-                        SVM.fit(X_train,y_train)
-                        modelSvm = SVM.fit(X_train,y_train)
-                        y_pred = modelSvm.predict(X_test)
+                        modelSVM = SVM()
+                        modelSVM.fit(X_train,y_train)
+                        #modelSvm = SVM.fit(X_train,y_train)
+                        y_pred = modelSVM.predict(X_test)
                             
                         akurasi = accuracy_score(y_test, y_pred)
                         recall = recall_score(y_test, y_pred)
@@ -221,9 +206,9 @@ def main():
                         tfidf.fit(dataset['text_clean'])
                         #text = "udah oktober april putus ngeluh"
                         output = tfidf.transform([data])
-                        if SVM.predict(output) == 1:
+                        if modelSVM.predict(output) == 1:
                             st.write(data,"======== adalah positif - sentimen")
-                        elif SVM.predict(output) == -1:
+                        elif modelSVM.predict(output) == -1:
                             st.write(data,"======== adalah negatif - sentimen")
                 
 
@@ -254,10 +239,10 @@ def main():
                     iterasi+=1
                     X_train, X_test = X[train_index], X[test_index] 
                     y_train, y_test = y[train_index], y[test_index]
-                    SVM = svm.SVC(kernel='linear')
-                    SVM.fit(X_train,y_train)
-                    modelSvm = SVM.fit(X_train,y_train)
-                    y_pred = modelSvm.predict(X_test)
+                    modelSVM = SVM()
+                    modelSVM.fit(X_train,y_train)
+                    #modelSvm = SVM.fit(X_train,y_train)
+                    y_pred = modelSVM.predict(X_test)
                         
                     akurasi = accuracy_score(y_test, y_pred)
                     recall = recall_score(y_test, y_pred)
@@ -305,9 +290,9 @@ def main():
                     tfidf.fit(dataset['text_clean'])
                     #text = "udah oktober april putus ngeluh"
                     output = tfidf.transform([data])
-                    if SVM.predict(output) == 1:
+                    if modelSVM.predict(output) == 1:
                         st.write(data,"======== adalah positif - sentimen")
-                    elif SVM.predict(output) == -1:
+                    elif modelSVM.predict(output) == -1:
                         st.write(data,"======== adalah negatif - sentimen")
 
 
