@@ -1,0 +1,5 @@
+1. dataset_twiter_kuliah_daring.csv => adalah data awal / data kotor / data asli dari sumber terpercaya(paper/penelitian sebelumnya)
+2. dataset_sentimen_ready.csv => adalah data yang sudah mengalami persiapan, pengubahan class, pengelompokkan class. data ini untuk tahap praproses.
+3. dataset_sentimen_praproses.csv => data hasil pengolahan data(praproses). Data ini yg akan digunakan untuk tahap klasifikasi.
+
+note: ketiga data diatas yg digunakan dalam tahap klasifikasi ini. selain data diatas maka itu adalah data hasil/output dari program.
